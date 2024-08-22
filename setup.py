@@ -21,7 +21,7 @@ def get_version():
             if ver_file is not None:
                 ver_file.close()
     else:
-        spec = importlib.util.find_spec('__version__', ['src/vcstools'])
+        spec = importlib.util.find_spec('__version__', 'src.vcstools')
         if spec is None:
             raise ImportError("Module '__version__' not found")
 
