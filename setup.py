@@ -1,20 +1,34 @@
+import sys
 from setuptools import setup
 
-import imp
+if sys.version_info < (3, 12):
+    import imp
+else:
+    import importlib.util
 
 with open('README.rst') as readme_file:
     README = readme_file.read()
 
 def get_version():
-    ver_file = None
-    try:
-        ver_file, pathname, description = imp.find_module('__version__', ['src/vcstools'])
-        vermod = imp.load_module('__version__', ver_file, pathname, description)
+    if sys.version_info < (3, 12):
+        ver_file = None
+        try:
+            ver_file, pathname, description = imp.find_module('__version__', ['src/vcstools'])
+            vermod = imp.load_module('__version__', ver_file, pathname, description)
+            version = vermod.version
+            return version
+        finally:
+            if ver_file is not None:
+                ver_file.close()
+    else:
+        spec = importlib.util.find_spec('__version__', ['src/vcstools'])
+        if spec is None:
+            raise ImportError("Module '__version__' not found")
+
+        vermod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(vermod)
         version = vermod.version
         return version
-    finally:
-        if ver_file is not None:
-            ver_file.close()
 
 test_required = [
     "nose",
